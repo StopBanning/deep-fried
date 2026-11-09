@@ -181,7 +181,7 @@ export interface PortfolioRiskResponse {
   downside?: PortfolioDownsideBlock | null;
 }
 
-/** Leverage-aware downside block from the daily-downside engine (US positions only). */
+/** Leverage-aware downside block from the Deep Fried engine (US positions only). */
 export interface PortfolioDownsideBlock {
   available: boolean;
   reason?: string;

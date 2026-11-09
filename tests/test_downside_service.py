@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Downside block: snapshot -> daily-downside engine -> JSON, offline with synthetic bars."""
+"""Downside block: snapshot -> Deep Fried engine -> JSON, offline with synthetic bars."""
 
 import os
 import unittest
@@ -38,7 +38,7 @@ def _snapshot():
     ]}
 
 
-@unittest.skipIf(Bars is None, "daily-downside not installed")
+@unittest.skipIf(Bars is None, "deep-fried-engine not installed")
 class DownsideServiceTest(unittest.TestCase):
     def test_aggregates_us_positions_and_skips_others(self):
         positions, skipped = DS._aggregate_positions(_snapshot())

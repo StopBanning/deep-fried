@@ -297,5 +297,5 @@ class PortfolioRiskResponse(BaseModel):
     drawdown: Dict[str, Any] = Field(default_factory=dict)
     stop_loss: Dict[str, Any] = Field(default_factory=dict)
     decision_signal_risk: PortfolioDecisionSignalRiskBlock = Field(default_factory=PortfolioDecisionSignalRiskBlock)
-    # Leverage-aware downside block from the daily-downside engine (US positions); see downside_service.
+    # Leverage-aware downside block from the Deep Fried engine (US positions); see downside_service.
     downside: Optional[Dict[str, Any]] = None

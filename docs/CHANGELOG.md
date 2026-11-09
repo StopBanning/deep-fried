@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- [改进] Renamed to **Deep Fried**: README, sidebar and page titles; the risk engine is now `deep-fried-engine` (github.com/StopBanning/deep-fried-engine).
 - [新功能] US Edition: Downside panel on the portfolio page and a `downside` block on `/api/v1/portfolio/risk` (daily-downside engine: leverage-adjusted exposure, weekly dollar range, stress table, levels in the held fund's terms, drawdowns at leverage, calibrated ranges, 26-week scorecard); config `DOWNSIDE_ENABLED`, `DOWNSIDE_LEVELS`, `DOWNSIDE_WATCH`, `DOWNSIDE_CACHE_HOURS`.
 - [新功能] US Edition: analysis prompt flags daily-reset leveraged ETFs; single-stock and dashboard reports get a Downside check section.
 - [改进] US Edition: new portfolio accounts default to the US market in USD; `PORTFOLIO_BASE_CURRENCY` sets the totals currency (default USD); portfolio page labels in English.

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Downside block for the portfolio risk report, computed by the `daily-downside` engine.
+"""Downside block for the portfolio risk report, computed by the Deep Fried engine (`deep-fried-engine`).
 
 Takes the replayed portfolio snapshot (US positions only), and returns the book's leverage-adjusted
 exposure, next week's dollar range, a stress table, exit/buy levels translated into the held fund's
@@ -131,7 +131,7 @@ def build_downside(snapshot: Dict[str, Any]) -> Dict[str, Any]:
         from downside import portfolio as P
         from downside import risk as R
     except ImportError:
-        return {"available": False, "reason": "daily-downside engine not installed"}
+        return {"available": False, "reason": "deep-fried-engine not installed"}
 
     positions, skipped = _aggregate_positions(snapshot)
     if not positions:

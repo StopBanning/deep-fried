@@ -1,12 +1,14 @@
-# Daily Stock Analysis: US Edition
+# Deep Fried
 
-A US-stocks fork of [ZhuLinsen/daily_stock_analysis](https://github.com/ZhuLinsen/daily_stock_analysis) (MIT).
+How fried could your portfolio get? A US stock analysis dashboard that leads with the downside.
+
+Deep Fried is a US-stocks fork of [ZhuLinsen/daily_stock_analysis](https://github.com/ZhuLinsen/daily_stock_analysis) (MIT).
 It keeps the upstream app: web dashboard, AI analysis per stock, screening, backtests and push
 notifications. On top of that it adds a risk layer, built on
-[daily-downside](https://github.com/StopBanning/daily-downside), whose numbers come from code, not
+[deep-fried-engine](https://github.com/StopBanning/deep-fried-engine), whose numbers come from code, not
 from the language model.
 
-**What the US Edition adds**
+**What Deep Fried adds**
 
 - **Downside panel** on the portfolio page:
   - what your book really moves like once leverage is counted;
@@ -35,7 +37,7 @@ python main.py --webui-only # http://127.0.0.1:8000
 Optional: `DOWNSIDE_LEVELS=AVGO:exit_below:290,NVDA:buy_at:200` shows your exit and add levels on
 the Downside panel.
 
-The upstream README follows. Its China-market setup steps don't apply to this edition.
+The upstream README follows. Its China-market setup steps don't apply to Deep Fried.
 
 ---
 
