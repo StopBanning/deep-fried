@@ -9,6 +9,7 @@ import { getParsedApiError } from '../api/error';
 import { ApiErrorAlert, Card, Badge, ConfirmDialog, EmptyState, InlineAlert, StatusDot } from '../components/common';
 import { PortfolioSignalSummary } from '../components/decision-signals/DecisionSignalDisplay';
 import { DownsidePanel } from '../components/portfolio/DownsidePanel';
+import { DeskNoteCard } from '../components/portfolio/DeskNoteCard';
 import { useUiLanguage } from '../contexts/UiLanguageContext';
 import { formatUiText } from '../i18n/uiText';
 import { PORTFOLIO_TEXT } from '../locales/featureText';
@@ -837,7 +838,7 @@ const PortfolioPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [queryAccountId, costMethod]);
+  }, [queryAccountId, costMethod, loadLivePrices]);
 
   const loadEventsPage = useCallback(async (page: number) => {
     setEventLoading(true);
@@ -1726,6 +1727,7 @@ const PortfolioPage: React.FC = () => {
         </Card>
       </section>
 
+      <DeskNoteCard refreshKey={portfolioSignalsRefreshKey} />
       <DownsidePanel downside={risk?.downside} />
 
       <section className="grid grid-cols-1 xl:grid-cols-3 gap-3">

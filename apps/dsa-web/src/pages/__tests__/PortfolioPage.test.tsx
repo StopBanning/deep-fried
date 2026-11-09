@@ -82,6 +82,7 @@ vi.mock('../../api/portfolio', () => ({
     createAccount,
     deleteAccount,
     analyzePosition,
+    getDeskNote: vi.fn().mockResolvedValue({ available: false }),
   },
 }));
 

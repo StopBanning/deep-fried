@@ -674,3 +674,17 @@ def get_risk_report(
         raise _bad_request(exc)
     except Exception as exc:
         raise _internal_error("Get risk report failed", exc)
+
+
+@router.get(
+    "/desk-note",
+    summary="Latest desk note (desk mode)",
+)
+def get_desk_note() -> dict:
+    """The newest Markdown note written by `scripts/desk.py note`; {"available": false} when none."""
+    from src.services.desk_service import latest_note
+
+    try:
+        return latest_note()
+    except Exception as exc:
+        raise _internal_error("Get desk note failed", exc)

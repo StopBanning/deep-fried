@@ -18,6 +18,7 @@ import type {
   PortfolioImportParseResponse,
   PortfolioPositionAnalysisRequest,
   PortfolioRiskResponse,
+  PortfolioDeskNote,
   PortfolioSnapshotResponse,
   PortfolioTradeCreateRequest,
   PortfolioTradeListResponse,
@@ -153,6 +154,11 @@ export const portfolioApi = {
       params: buildSnapshotParams(query),
     });
     return toCamelCase<PortfolioRiskResponse>(response.data);
+  },
+
+  async getDeskNote(): Promise<PortfolioDeskNote> {
+    const response = await apiClient.get<Record<string, unknown>>('/api/v1/portfolio/desk-note');
+    return toCamelCase<PortfolioDeskNote>(response.data);
   },
 
   async refreshFx(query: FxRefreshQuery = {}): Promise<PortfolioFxRefreshResponse> {

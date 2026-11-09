@@ -376,3 +376,9 @@ export interface PortfolioFxRefreshResponse {
   staleCount: number;
   errorCount: number;
 }
+
+export interface PortfolioDeskNote {
+  available: boolean;
+  date?: string;
+  markdown?: string;
+}
