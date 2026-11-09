@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- [新功能] US Edition: Downside panel on the portfolio page and a `downside` block on `/api/v1/portfolio/risk` (daily-downside engine: leverage-adjusted exposure, weekly dollar range, stress table, levels in the held fund's terms, drawdowns at leverage, calibrated ranges, 26-week scorecard); config `DOWNSIDE_ENABLED`, `DOWNSIDE_LEVELS`, `DOWNSIDE_WATCH`, `DOWNSIDE_CACHE_HOURS`.
+- [新功能] US Edition: analysis prompt flags daily-reset leveraged ETFs; single-stock and dashboard reports get a Downside check section.
+- [改进] US Edition: new portfolio accounts default to the US market in USD; `PORTFOLIO_BASE_CURRENCY` sets the totals currency (default USD); portfolio page labels in English.
+
 - [修复] Agent 工具消息内容与工具调用参数序列化不再透传 NaN/±Infinity：`LLMToolAdapter._convert_messages` 序列化前将非有限浮点递归归一化为 `null`，并以 `allow_nan=False` 输出严格 RFC 8259 JSON，避免 LiteLLM 以 `"NaN" is not valid JSON` 拒绝请求（#2471）。
 
 - [修复] 启动日志不再对 `--stocks` / `--portfolio` / `--no-notify` 已覆盖的配置项告警；单一日线数据源失败（含 Eastmoney 股票与 ETF 请求）降为 WARNING，普通股票及 A 股指数全部日线数据源失败仍为 ERROR；LLM 返回与调试日志显示实际响应模型（含流式响应），依据实际调用路由标注回退，避免将别名、供应商前缀和日期版本差异误报为回退

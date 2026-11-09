@@ -1,3 +1,44 @@
+# Daily Stock Analysis: US Edition
+
+A US-stocks fork of [ZhuLinsen/daily_stock_analysis](https://github.com/ZhuLinsen/daily_stock_analysis) (MIT).
+It keeps the upstream app: web dashboard, AI analysis per stock, screening, backtests and push
+notifications. On top of that it adds a risk layer, built on
+[daily-downside](https://github.com/StopBanning/daily-downside), whose numbers come from code, not
+from the language model.
+
+**What the US Edition adds**
+
+- **Downside panel** on the portfolio page:
+  - what your book really moves like once leverage is counted;
+  - next week's dollar range;
+  - a stress table (-10/-20/-30/-40%);
+  - exit lines translated into the loss on the fund you actually hold;
+  - the worst historical falls at your leverage;
+  - calibrated weekly ranges;
+  - a 26-week out-of-sample scorecard showing how often those ranges held.
+- **Leveraged-ETF awareness:** GGLL, TQQQ, SOXL, NVDL and others are recognised as daily-reset 2x/3x funds,
+  both in the risk numbers and in the AI prompt.
+- **A Downside check in every report:** each stock's write-up and the push message get the calibrated range,
+  the scorecard and the worst fall at that ticker's leverage.
+- **US defaults:** USD accounts, US market, English labels on the portfolio page. SPY and QQQ ranges use
+  Cboe VIX/VXN.
+
+**Quick start (local)**
+
+```bash
+pip install -r requirements.txt
+cp .env.example .env        # set STOCK_LIST and one AI key, e.g. ANTHROPIC_API_KEY
+cd apps/dsa-web && npm ci && npm run build && cd ../..
+python main.py --webui-only # http://127.0.0.1:8000
+```
+
+Optional: `DOWNSIDE_LEVELS=AVGO:exit_below:290,NVDA:buy_at:200` shows your exit and add levels on
+the Downside panel.
+
+The upstream README follows. Its China-market setup steps don't apply to this edition.
+
+---
+
 <div align="center">
 
 # 📈 股票智能分析系统
