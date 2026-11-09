@@ -91,6 +91,39 @@ def _load_bars(tickers: List[str]):
         return bars
 
 
+def last_close(symbol: str, as_of) -> Optional[Tuple[float, Any]]:
+    """Latest daily close on or before `as_of` for a US ticker, from the engine's Nasdaq bars.
+
+    The portfolio page falls back to this when no live quote and no stored close exist (weekends,
+    after hours, or a throttled quote source), so US positions stop showing "missing price".
+    Returns (price, date) or None; never raises.
+    """
+    if os.getenv("DOWNSIDE_ENABLED", "true").strip().lower() in {"0", "false", "no", "off"}:
+        return None
+    try:
+        from data_provider.us_index_mapping import is_us_stock_code
+        from downside import data as D
+    except ImportError:
+        return None
+    sym = str(symbol or "").strip().upper()
+    if not sym or not is_us_stock_code(sym):
+        return None
+    try:
+        hours = float(os.getenv("DOWNSIDE_CACHE_HOURS", "6") or 6)
+        path = _CACHE_DIR / f"{sym}.csv"
+        with _lock:
+            fresh = path.exists() and time.time() - path.stat().st_mtime < hours * 3600
+            bars = D.load([sym], _CACHE_DIR, fetch=not fresh)
+        closes = bars.frames[sym].close
+        closes = closes[closes.index.date <= as_of]
+        if closes.empty or not float(closes.iloc[-1]) > 0:
+            return None
+        return float(closes.iloc[-1]), closes.index[-1].date()
+    except Exception as exc:  # fail-open
+        logger.info("downside close fallback skipped for %s: %s", sym, exc)
+        return None
+
+
 def build_downside(snapshot: Dict[str, Any]) -> Dict[str, Any]:
     if os.getenv("DOWNSIDE_ENABLED", "true").strip().lower() in {"0", "false", "no", "off"}:
         return {"available": False, "reason": "disabled"}

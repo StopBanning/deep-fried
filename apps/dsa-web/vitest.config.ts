@@ -7,6 +7,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/setupTests.ts',
+    // upstream page tests assume one stored-close load; the live-quote pass has its own test
+    env: { VITE_PORTFOLIO_LIVE_QUOTES: 'false' },
     exclude: [...configDefaults.exclude, 'e2e/**', 'playwright.config.ts'],
   },
 });

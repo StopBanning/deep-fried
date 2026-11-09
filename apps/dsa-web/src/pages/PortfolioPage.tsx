@@ -781,9 +781,26 @@ const PortfolioPage: React.FC = () => {
     }
   }, [selectedBroker]);
 
+  // US edition: the first paint uses stored closes (fast); when US positions come back stale, a second
+  // pass asks for live quotes and swaps them in. A newer load cancels an older live pass.
+  const livePassRef = useRef(0);
+  const loadLivePrices = useCallback(async (pass: number, accountId: number | undefined, method: PortfolioCostMethod) => {
+    try {
+      const live = await portfolioApi.getSnapshot({ accountId, costMethod: method, includeRealtime: true });
+      if (pass !== livePassRef.current) return;
+      setSnapshot(live);
+      const liveRisk = await portfolioApi.getRisk({ accountId, costMethod: method, includeRealtime: true });
+      if (pass !== livePassRef.current) return;
+      setRisk(liveRisk);
+    } catch {
+      // keep the stored-close view; live quotes are best effort
+    }
+  }, []);
+
   const loadSnapshotAndRisk = useCallback(async () => {
     setIsLoading(true);
     setRiskWarning(null);
+    const pass = ++livePassRef.current;
     try {
       const snapshotData = await portfolioApi.getSnapshot({
         accountId: queryAccountId,
@@ -804,6 +821,14 @@ const PortfolioPage: React.FC = () => {
         setRisk(null);
         const parsed = getParsedApiError(riskErr);
         setRiskWarning(parsed.message || 'Risk data failed to load; showing the snapshot only.');
+      }
+
+      const usStale = (snapshotData?.accounts ?? []).some((account) => (account.positions ?? []).some(
+        (p) => String(p.market).toLowerCase() === 'us' && p.priceStale && p.priceSource !== 'realtime_quote',
+      ));
+      const liveEnabled = import.meta.env.VITE_PORTFOLIO_LIVE_QUOTES !== 'false';
+      if (liveEnabled && usStale && pass === livePassRef.current) {
+        void loadLivePrices(pass, queryAccountId, costMethod);
       }
     } catch (err) {
       setSnapshot(null);

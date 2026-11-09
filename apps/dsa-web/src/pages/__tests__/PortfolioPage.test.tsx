@@ -354,6 +354,37 @@ describe('PortfolioPage FX refresh', () => {
     expect(getRisk).toHaveBeenCalledWith({ accountId: undefined, costMethod: 'fifo', includeRealtime: false });
   });
 
+  it('US edition: swaps in live quotes when US positions load stale', async () => {
+    vi.stubEnv('VITE_PORTFOLIO_LIVE_QUOTES', 'true');
+    const stale = makePosition({ symbol: 'NVDA', market: 'us', currency: 'USD', lastPrice: 186.64, priceStale: true });
+    const live = makePosition({ symbol: 'NVDA', market: 'us', currency: 'USD', lastPrice: 176.65, priceStale: false, priceSource: 'realtime_quote' });
+    getSnapshot.mockImplementation(async ({ includeRealtime }: { includeRealtime?: boolean } = {}) => (
+      makeSnapshot({ positions: [includeRealtime ? live : stale] })
+    ));
+    try {
+      render(<PortfolioPage />);
+      await waitFor(() => expect(getSnapshot).toHaveBeenCalledWith({ accountId: undefined, costMethod: 'fifo', includeRealtime: true }));
+      await waitFor(() => expect(getRisk).toHaveBeenCalledWith({ accountId: undefined, costMethod: 'fifo', includeRealtime: true }));
+      expect(await screen.findByText('176.6500')).toBeInTheDocument();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it('US edition: skips the live pass when prices are already fresh', async () => {
+    vi.stubEnv('VITE_PORTFOLIO_LIVE_QUOTES', 'true');
+    getSnapshot.mockImplementation(async () => makeSnapshot({
+      positions: [makePosition({ symbol: 'NVDA', market: 'us', priceStale: false, priceSource: 'realtime_quote' })],
+    }));
+    try {
+      render(<PortfolioPage />);
+      await waitForInitialLoad();
+      expect(getSnapshot).not.toHaveBeenCalledWith(expect.objectContaining({ includeRealtime: true }));
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it('renders stale FX status with a manual refresh button', async () => {
     render(<PortfolioPage />);
 

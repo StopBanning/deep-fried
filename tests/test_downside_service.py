@@ -51,7 +51,7 @@ class DownsideServiceTest(unittest.TestCase):
         lv = DS._parse_levels("AVGO:exit_below:290, nvda:buy_at:200, junk, TSM:sell:1")
         self.assertEqual(lv, {"AVGO": {"exit_below": 290.0}, "NVDA": {"buy_at": 200.0}})
 
-    @patch.dict(os.environ, {"DOWNSIDE_ENABLED": "true", "DOWNSIDE_LEVELS": "GOOGL:exit_below:90"})
+    @patch.dict(os.environ, {"DOWNSIDE_ENABLED": "true", "DOWNSIDE_LEVELS": "GOOGL:exit_below:90", "DOWNSIDE_WATCH": ""})
     def test_build_block(self):
         frames = {"NVDA": _bars(1, start=180, sigma=0.03), "GOOGL": _bars(2, start=100, sigma=0.018)}
         r = frames["GOOGL"].close.pct_change().fillna(0.0)
@@ -106,3 +106,30 @@ class DownsideServiceTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_last_close_reads_cached_bars(tmp_path, monkeypatch):
+    import datetime as dt
+    import pandas as pd
+    from src.services import downside_service as svc
+
+    idx = pd.to_datetime(["2026-11-05", "2026-11-06"])
+    pd.DataFrame({"open": [1, 1], "high": [1, 1], "low": [1, 1], "close": [100.0, 101.5], "volume": [1, 1]},
+                 index=idx).rename_axis("date").to_csv(tmp_path / "NVDA.csv")
+    (tmp_path / "manifest.json").write_text('{"fetched": "2026-11-06T19:00", "tickers": ["NVDA"]}')
+    monkeypatch.setattr(svc, "_CACHE_DIR", tmp_path)
+    monkeypatch.setenv("DOWNSIDE_ENABLED", "true")
+
+    import downside.data as D
+    monkeypatch.setattr(D, "check", lambda frames, today: ([], []))
+    assert svc.last_close("NVDA", dt.date(2026, 11, 8)) == (101.5, dt.date(2026, 11, 6))
+    assert svc.last_close("NVDA", dt.date(2026, 11, 5)) == (100.0, dt.date(2026, 11, 5))
+    assert svc.last_close("600519", dt.date(2026, 11, 8)) is None  # not a US code
+
+
+def test_last_close_off_when_disabled(monkeypatch):
+    import datetime as dt
+    from src.services import downside_service as svc
+
+    monkeypatch.setenv("DOWNSIDE_ENABLED", "false")
+    assert svc.last_close("NVDA", dt.date(2026, 11, 8)) is None

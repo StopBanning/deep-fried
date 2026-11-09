@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - [新功能] US Edition: Downside panel on the portfolio page and a `downside` block on `/api/v1/portfolio/risk` (daily-downside engine: leverage-adjusted exposure, weekly dollar range, stress table, levels in the held fund's terms, drawdowns at leverage, calibrated ranges, 26-week scorecard); config `DOWNSIDE_ENABLED`, `DOWNSIDE_LEVELS`, `DOWNSIDE_WATCH`, `DOWNSIDE_CACHE_HOURS`.
 - [新功能] US Edition: analysis prompt flags daily-reset leveraged ETFs; single-stock and dashboard reports get a Downside check section.
 - [改进] US Edition: new portfolio accounts default to the US market in USD; `PORTFOLIO_BASE_CURRENCY` sets the totals currency (default USD); portfolio page labels in English.
+- [修复] US Edition: US positions no longer show "missing price". With no live quote and no stored close (weekends, after hours, throttled quotes), the snapshot uses the last Nasdaq daily close from the downside engine, marked stale; when the page loads stale US prices it fetches live quotes in a second pass and swaps them in (build-time `VITE_PORTFOLIO_LIVE_QUOTES=false` turns the second pass off).
 
 - [修复] Agent 工具消息内容与工具调用参数序列化不再透传 NaN/±Infinity：`LLMToolAdapter._convert_messages` 序列化前将非有限浮点递归归一化为 `null`，并以 `allow_nan=False` 输出严格 RFC 8259 JSON，避免 LiteLLM 以 `"NaN" is not valid JSON` 拒绝请求（#2471）。
 

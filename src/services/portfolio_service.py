@@ -1182,6 +1182,21 @@ class PortfolioService:
                     is_available=True,
                 )
 
+        # US edition: no live quote and no stored close -> last daily close from the downside engine.
+        from src.services.downside_service import last_close
+
+        fallback = last_close(symbol, as_of_date)
+        if fallback is not None:
+            close_price, close_date = fallback
+            return _ResolvedPositionPrice(
+                price=close_price,
+                source="history_close",
+                price_date=close_date,
+                is_stale=close_date < as_of_date,
+                is_available=True,
+                provider="nasdaq",
+            )
+
         return _ResolvedPositionPrice(
             price=0.0,
             source="missing",
