@@ -12,8 +12,8 @@ from pydantic import BaseModel, Field
 class PortfolioAccountCreateRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=64)
     broker: Optional[str] = Field(None, max_length=64)
-    market: Literal["cn", "hk", "us", "jp", "kr", "tw"] = "cn"
-    base_currency: str = Field("CNY", min_length=3, max_length=8)
+    market: Literal["cn", "hk", "us", "jp", "kr", "tw"] = "us"
+    base_currency: str = Field("USD", min_length=3, max_length=8)
     owner_id: Optional[str] = Field(None, max_length=64)
 
 
@@ -297,3 +297,5 @@ class PortfolioRiskResponse(BaseModel):
     drawdown: Dict[str, Any] = Field(default_factory=dict)
     stop_loss: Dict[str, Any] = Field(default_factory=dict)
     decision_signal_risk: PortfolioDecisionSignalRiskBlock = Field(default_factory=PortfolioDecisionSignalRiskBlock)
+    # Leverage-aware downside block from the daily-downside engine (US positions); see downside_service.
+    downside: Optional[Dict[str, Any]] = None

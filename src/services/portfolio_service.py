@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import os
+
 import json
 import logging
 from collections import defaultdict
@@ -488,7 +490,8 @@ class PortfolioService:
             account_rows = self.repo.list_accounts(include_inactive=False)
 
         accounts_payload: List[Dict[str, Any]] = []
-        aggregate_currency = "CNY"
+        # Reporting currency for portfolio totals (upstream hard-coded CNY; this edition defaults to USD).
+        aggregate_currency = (os.getenv("PORTFOLIO_BASE_CURRENCY") or "USD").strip().upper()
         aggregate = {
             "total_cash": 0.0,
             "total_market_value": 0.0,

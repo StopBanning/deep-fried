@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import concurrent.futures
 import time
 import threading
@@ -12,6 +13,9 @@ from contextvars import copy_context
 from functools import wraps
 from typing import Any, TypeVar
 from warnings import warn
+
+# The downside block fetches market data; keep the suite offline (its own tests turn it back on).
+os.environ.setdefault("DOWNSIDE_ENABLED", "false")
 
 import anyio.to_thread
 import fastapi.testclient

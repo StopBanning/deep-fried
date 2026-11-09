@@ -179,6 +179,7 @@ class PortfolioApiTestCase(unittest.TestCase):
         self.assertAlmostEqual(account_snapshot["total_market_value"], 11000.0, places=6)
         self.assertAlmostEqual(account_snapshot["total_equity"], 11000.0, places=6)
 
+    @patch.dict(os.environ, {"PORTFOLIO_BASE_CURRENCY": "CNY"})
     def test_snapshot_exposes_per_account_values_in_aggregate_currency(self) -> None:
         cn_id = self._create_position(name="CNY Account", quantity=1)
         us_id = self._create_position(name="USD Account", symbol="AAPL", quantity=1, market="us", currency="USD")

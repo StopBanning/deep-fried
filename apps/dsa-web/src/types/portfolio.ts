@@ -178,6 +178,43 @@ export interface PortfolioRiskResponse {
     items: PortfolioStopLossItem[];
   };
   decisionSignalRisk?: PortfolioDecisionSignalRiskBlock;
+  downside?: PortfolioDownsideBlock | null;
+}
+
+/** Leverage-aware downside block from the daily-downside engine (US positions only). */
+export interface PortfolioDownsideBlock {
+  available: boolean;
+  reason?: string;
+  asOf?: string;
+  bookValue?: number;
+  costBasis?: number;
+  pnl?: number;
+  dayChange?: number;
+  exposure?: number;
+  leverageRatio?: number | null;
+  weekRange80?: number;
+  weekRange95?: number;
+  holdings?: Array<{
+    symbol: string; underlying: string; leverage: number; price: number; value: number;
+    pnl: number; pnlPct: number; toCost: number; underlyingToCost: number;
+  }>;
+  stress?: Array<{ move: number; smooth: number; choppy: number; bookAfter: number }>;
+  levels?: Array<{
+    symbol: string; underlying: string; kind: 'exit_below' | 'buy_at'; level: number; distance: number;
+    touch: number; closeBeyond: number; holdingAtLevel: number; fromCost: number; late: boolean;
+  }>;
+  history?: Array<{
+    underlying: string; leverage: number; since: string; worstFall: number; peak: string; trough: string;
+    atLeverage: number | null; worstWeek: number;
+  }>;
+  ranges?: Array<{
+    ticker: string; last: number; weeklyVol: number; r80Low: number; r80High: number; r95Low: number;
+    r95High: number; method: string;
+    record: { weeks: number; in80: number; in95: number; lastMiss: string | null } | null;
+  }>;
+  scorecard?: { weeks: number; in80: number; in95: number } | null;
+  warnings?: string[];
+  skipped?: string[];
 }
 
 export interface PortfolioTradeCreateRequest {

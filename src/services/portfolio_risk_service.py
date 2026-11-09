@@ -13,6 +13,7 @@ from src.config import Config, get_config
 from src.repositories.portfolio_repo import PortfolioRepository
 from src.services.decision_signal_service import DecisionSignalService
 from src.services.decision_signal_summary import summarize_decision_signal
+from src.services.downside_service import build_downside
 from src.services.portfolio_service import PortfolioService
 
 logger = logging.getLogger(__name__)
@@ -95,6 +96,7 @@ class PortfolioRiskService:
         )
         stop_loss = self._build_stop_loss(snapshot, thresholds)
         decision_signal_risk = self._build_decision_signal_risk(snapshot)
+        downside = build_downside(snapshot)
 
         return {
             "as_of": as_of_date.isoformat(),
@@ -107,6 +109,7 @@ class PortfolioRiskService:
             "drawdown": drawdown,
             "stop_loss": stop_loss,
             "decision_signal_risk": decision_signal_risk,
+            "downside": downside,
         }
 
     def _build_decision_signal_risk(
