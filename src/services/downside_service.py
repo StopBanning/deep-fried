@@ -25,6 +25,8 @@ from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, List, Optional, Tuple
 
+import numpy as np
+
 logger = logging.getLogger(__name__)
 
 _CACHE_DIR = Path(os.getenv("DOWNSIDE_CACHE_DIR", "data/downside_bars"))
@@ -168,3 +170,76 @@ def build_downside(snapshot: Dict[str, Any]) -> Dict[str, Any]:
         "warnings": a.warnings,
         "skipped": skipped,
     }
+
+
+def leverage_prompt_note(code: str, english: bool = True) -> str:
+    """A prompt section telling the model a ticker is a daily-reset leveraged ETF (empty for anything else)."""
+    try:
+        from downside.levered import REGISTRY
+    except ImportError:
+        return ""
+    entry = REGISTRY.get(str(code or "").strip().upper())
+    if not entry:
+        return ""
+    underlying, lev = entry
+    lev_txt = f"{abs(lev):g}x {'inverse ' if lev < 0 else ''}"
+    if english:
+        return (
+            "\n## ⚠️ Leveraged ETF\n"
+            f"**{code.upper()}** is a daily-reset {lev_txt}fund on **{underlying}**. Each day it moves about "
+            f"{lev:g} times {underlying}'s daily move; over weeks, choppy markets erode it even if {underlying} ends flat, "
+            f"and drawdowns run about {abs(lev):g} times deeper. Analyse the trend through {underlying}, judge position "
+            "risk on the fund's own path, and never describe it as an ordinary stock or a long-term hold without saying so.\n\n---\n"
+        )
+    return (
+        "\n## ⚠️ 杠杆 ETF\n"
+        f"**{code.upper()}** 是追踪 **{underlying}** 的每日重置 {lev_txt}基金：单日涨跌约为 {underlying} 的 {lev:g} 倍，"
+        "震荡行情中会产生损耗，回撤幅度约为标的的数倍。请以标的趋势为分析基础，并按基金本身的路径评估持仓风险。\n\n---\n"
+    )
+
+
+def stock_risk_lines(code: str, english: bool = True) -> List[str]:
+    """Markdown lines with a US ticker's calibrated weekly range, scorecard and worst fall (at its leverage).
+
+    Numbers from code; empty list for non-US tickers, when disabled, or on any data problem.
+    """
+    if os.getenv("DOWNSIDE_ENABLED", "true").strip().lower() in {"0", "false", "no", "off"}:
+        return []
+    try:
+        from data_provider.us_index_mapping import is_us_stock_code
+        from downside import levered as LV
+        from downside import vol as V
+        from downside.data import IMPLIED
+    except ImportError:
+        return []
+    symbol = str(code or "").strip().upper()
+    if not symbol or not is_us_stock_code(symbol):
+        return []
+    try:
+        underlying, lev = LV.resolve(symbol)
+        bars = _load_bars(sorted({symbol, underlying}))
+        df = bars.frames[underlying]
+        iv, name = bars.implied_for(underlying)
+        fc = V.forecast(df, iv, name)
+        rec = V.track_record(df, iv)
+        last = float(bars.frames[symbol].close.iloc[-1])
+        sd = fc.sd5 * (abs(lev) if lev != 1 else 1.0)
+        lo80, hi80 = last * float(np.exp(-V.Z80 * sd)), last * float(np.exp(V.Z80 * sd))
+        dd = LV.max_drawdown(df.close)[0]
+        fund_dd = LV.max_drawdown(LV.synthetic(df.close, lev))[0] if lev != 1 else None
+    except Exception as exc:  # fail-open
+        logger.info("stock risk lines skipped for %s: %s", symbol, exc)
+        return []
+    if not english:
+        return []  # this edition writes the risk section in English only
+    out = ["### 📉 Downside check (numbers from code)", ""]
+    if lev != 1:
+        out.append(f"- **{symbol}** is a daily-reset {lev:g}x fund on {underlying}; ranges below are for {symbol} itself.")
+    out.append(f"- Next week, 4 weeks in 5: **{lo80:,.2f} to {hi80:,.2f}** ({fc.method}, weekly vol {sd:.1%}).")
+    if rec:
+        out.append(f"- Scorecard: this model's 80% range held **{rec.in80:.0%}** of the last {rec.weeks} weeks "
+                   f"(95% range: {rec.in95:.0%}).")
+    worst = f"- Worst fall in the data window: {underlying} {dd:.1%}"
+    out.append(worst + (f"; at {lev:g}x that stretch was **{fund_dd:.1%}**." if fund_dd is not None else "."))
+    out.append("")
+    return out

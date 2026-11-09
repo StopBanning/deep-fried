@@ -22,6 +22,7 @@ import litellm
 from json_repair import repair_json
 from litellm import Router
 
+from src.services.downside_service import leverage_prompt_note
 from src.agent.llm_adapter import (
     get_thinking_extra_body,
     resolve_fallback_litellm_wire_models,
@@ -4446,6 +4447,7 @@ Output strictly in the following JSON format. This is a complete Decision Dashbo
 
 ---
 """
+        prompt += leverage_prompt_note(code, english=english)
         prompt += format_market_phase_prompt_section(
             context.get("market_phase_context"),
             report_language=report_language,

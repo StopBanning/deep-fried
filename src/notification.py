@@ -23,6 +23,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple, TYPE_CHECKING
 from enum import Enum
 
+from src.services.downside_service import stock_risk_lines
 from src.config import Config, get_config
 from src.enums import ReportType
 from src.market_phase_summary import format_public_market_status_line, format_public_phase_pack_excerpt
@@ -1567,6 +1568,9 @@ class NotificationService(
                 # 财务摘要 / 股东回报 / 关联板块（数据缺失时自动隐藏对应小节）
                 self._append_fundamental_blocks(report_lines, result)
 
+                # US edition: calibrated range, scorecard and worst fall at the ticker's leverage (fail-open)
+                report_lines.extend(stock_risk_lines(result.code, english=report_language != "zh"))
+
                 # 如果没有 dashboard，显示传统格式
                 if not dashboard:
                     # 操作理由
@@ -2108,6 +2112,9 @@ class NotificationService(
 
         # 财务摘要 / 股东回报 / 关联板块（数据缺失时自动隐藏对应小节）
         self._append_fundamental_blocks(lines, result)
+
+        # US edition: calibrated range, scorecard and worst fall at the ticker's leverage (fail-open)
+        lines.extend(stock_risk_lines(result.code, english=report_language != "zh"))
 
         lines.append("---")
         if self._should_show_llm_model():

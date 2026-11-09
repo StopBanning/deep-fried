@@ -80,6 +80,29 @@ class DownsideServiceTest(unittest.TestCase):
         with patch.dict(os.environ, {"DOWNSIDE_ENABLED": "false"}):
             self.assertEqual(DS.build_downside(_snapshot())["reason"], "disabled")
 
+    def test_leverage_prompt_note(self):
+        self.assertIn("2x fund on **GOOGL**", DS.leverage_prompt_note("ggll"))
+        self.assertEqual(DS.leverage_prompt_note("MSFT"), "")
+
+    @patch.dict(os.environ, {"DOWNSIDE_ENABLED": "true"})
+    def test_stock_risk_lines(self):
+        frames = {"GOOGL": _bars(2, start=100, sigma=0.018)}
+        r = frames["GOOGL"].close.pct_change().fillna(0.0)
+        c = 50 * np.cumprod(1 + 2 * r)
+        frames["GGLL"] = pd.DataFrame({"open": c, "high": c * 1.01, "low": c * 0.99, "close": c, "volume": 1e6},
+                                      index=frames["GOOGL"].index)
+        with patch.object(DS, "_load_bars", return_value=Bars(frames, "test")):
+            text = "\n".join(DS.stock_risk_lines("GGLL"))
+        self.assertIn("Downside check", text)
+        self.assertIn("2x fund on GOOGL", text)
+        self.assertIn("Scorecard", text)
+        self.assertEqual(DS.stock_risk_lines("600519"), [])
+
+    @patch.dict(os.environ, {"DOWNSIDE_ENABLED": "true"})
+    def test_stock_risk_lines_fail_open(self):
+        with patch.object(DS, "_load_bars", side_effect=RuntimeError("down")):
+            self.assertEqual(DS.stock_risk_lines("NVDA"), [])
+
 
 if __name__ == "__main__":
     unittest.main()
