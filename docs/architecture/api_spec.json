@@ -2909,6 +2909,30 @@
           }
         }
       }
+    },
+    "/api/v1/portfolio/desk-note": {
+      "get": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "Latest desk note (desk mode)",
+        "description": "The newest Markdown note written by `scripts/desk.py note`; {\"available\": false} when none.",
+        "operationId": "get_desk_note_api_v1_portfolio_desk_note_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Desk Note Api V1 Portfolio Desk Note Get"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7400,6 +7424,18 @@
           },
           "decision_signal_risk": {
             "$ref": "#/components/schemas/PortfolioDecisionSignalRiskBlock"
+          },
+          "downside": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Downside"
           }
         },
         "type": "object",

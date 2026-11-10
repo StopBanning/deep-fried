@@ -38,7 +38,7 @@ def _snapshot():
     ]}
 
 
-@unittest.skipIf(Bars is None, "deep-fried-engine not installed")
+@unittest.skipIf(Bars is None, "downside engine not importable")
 class DownsideServiceTest(unittest.TestCase):
     def test_aggregates_us_positions_and_skips_others(self):
         positions, skipped = DS._aggregate_positions(_snapshot())

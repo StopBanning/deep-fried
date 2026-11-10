@@ -36,7 +36,7 @@ jobs:
               - '{apps/dsa-web/public/**,apps/dsa-web/src/components/settings/llmProviderTemplates.ts,apps/dsa-web/src/locales/settingsHelp.ts}'
               - '!**/*.md'
             docker:
-              - '{*.py,api/**,bot/**,data_provider/**,src/**,strategies/**,apps/dsa-web/**,docker/**,requirements.txt,.dockerignore,.github/workflows/ci.yml}'
+              - '{*.py,api/**,bot/**,data_provider/**,src/**,downside/**,strategies/**,apps/dsa-web/**,docker/**,requirements.txt,.dockerignore,.github/workflows/ci.yml}'
               - '!**/*.md'
             futu_packaging:
               - '{requirements.txt,main.py,src/brokers/futu/**,scripts/build-backend.ps1,scripts/build-backend-macos.sh,scripts/macos-signature-audit.sh,scripts/build-all.ps1,scripts/build-all-macos.sh,apps/dsa-desktop/**,.github/workflows/ci.yml,.github/workflows/desktop-release.yml}'

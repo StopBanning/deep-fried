@@ -1,0 +1,38 @@
+# Copy to portfolio.yaml (git-ignored) and put your own positions in it.
+# Every number below is made up.
+
+name: Example account
+cash: 250.00
+
+positions:
+  - symbol: NVDA
+    shares: 6
+    avg_cost: 195.00
+    levels:
+      buy_at: 175          # an add level, on NVDA itself
+
+  - symbol: TQQQ           # a 3x fund: the report works out QQQ and the leverage on its own
+    shares: 20
+    avg_cost: 58.00
+    levels:
+      exit_below: 600      # a line on the underlying (QQQ); the report shows what it costs the fund
+
+  - symbol: GGLL           # 2x GOOGL
+    shares: 12
+    avg_cost: 80.00
+    levels:
+      exit_below: 255
+
+  - symbol: MSFT
+    shares: 2
+    avg_cost: 510.00
+
+# Extra tickers to show ranges and news for, without holding them.
+watch: [SPY, SMH]
+
+# Unknown leveraged fund? Spell it out:
+#  - symbol: XYZU
+#    shares: 10
+#    avg_cost: 20
+#    underlying: XYZ
+#    leverage: 2

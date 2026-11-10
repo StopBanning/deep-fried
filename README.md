@@ -4,9 +4,8 @@ How fried could your portfolio get? A US stock analysis dashboard that leads wit
 
 Deep Fried is a US-stocks fork of [ZhuLinsen/daily_stock_analysis](https://github.com/ZhuLinsen/daily_stock_analysis) (MIT).
 It keeps the upstream app: web dashboard, AI analysis per stock, screening, backtests and push
-notifications. On top of that it adds a risk layer, built on
-[deep-fried-engine](https://github.com/StopBanning/deep-fried-engine), whose numbers come from code, not
-from the language model.
+notifications. On top of that it adds a risk layer whose numbers come from code, not from the language
+model: the engine lives in [`downside/`](downside/) and is documented in [docs/engine.md](docs/engine.md).
 
 **What Deep Fried adds**
 
